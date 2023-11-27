@@ -32,7 +32,6 @@ pub fn init_bank(num_workers: i32, file: String) {
 
     // Creating threads
     let mut workers = Vec::new();
-    // possibly use RwLock for size?
     let ledger = Arc::new(Mutex::new(ledger));
 
     for id in 0..num_workers {

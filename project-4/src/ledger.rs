@@ -1,7 +1,7 @@
 use std::{
     fs,
     error::Error,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, OnceLock},
     process,
     thread,
     collections::VecDeque,
@@ -17,26 +17,34 @@ struct Ledger {
     ledger_id: i32,
 }
 
+static BANK: OnceLock<Bank> = OnceLock::new();
 
 pub fn init_bank(num_workers: i32, file: String) {
+    // Initializing
+    let bank = BANK.get_or_init(|| bank::init(10));
     let mut ledger: VecDeque<Ledger> = VecDeque::new();
-    let bank = bank::init(10);
     if let Err(e) = load_ledger(file, &mut ledger) {
         eprintln!("Application error: {e}");
         process::exit(1);
     }
-    // println!("{:?}", bank.print_account());
+    
+    bank.print_account();
+
+    // Creating threads
     let mut workers = Vec::new();
+    // possibly use RwLock for size?
     let ledger = Arc::new(Mutex::new(ledger));
 
     for id in 0..num_workers {
         let l = Arc::clone(&ledger);
-        let worker = thread::spawn(move || worker(id, l, &bank));
+        let worker = thread::spawn(move || worker(id, l));
         workers.push(worker);
     }
     for worker in workers {
         worker.join().unwrap();
     }
+
+    bank.print_account();
 }
 
 /**
@@ -63,7 +71,7 @@ fn load_ledger(file: String, ledger: &mut VecDeque<Ledger>) -> Result<(), Box<dy
     Ok(())
 }
 
-fn worker(worker_id: i32, ledger: Arc<Mutex<VecDeque<Ledger>>>, bank: &Bank) {
+fn worker(worker_id: i32, ledger: Arc<Mutex<VecDeque<Ledger>>>) {
     let mut size = i32::MAX;
     while size != 0 {
         // lock and modify
@@ -75,9 +83,8 @@ fn worker(worker_id: i32, ledger: Arc<Mutex<VecDeque<Ledger>>>, bank: &Bank) {
         } else { break; }
         // unlock
         drop(l);
-        
-        // println!("{worker_id}");
-        // println!("{:?}", item);
+
+        let bank = BANK.get().unwrap();
         match item.mode {
             0 => bank.deposit(worker_id, item.ledger_id, item.acc, item.amount),
             1 => {}

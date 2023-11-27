@@ -60,28 +60,9 @@ impl Bank {
         self.record_succ(format!("Worker {worker_id} completed ledger {ledger_id}: deposit {} into account {account_id}", *balance_lock));
     }
     pub fn withdraw(&self, worker_id: i32, ledger_id: i32, account_id: i32, amount: i32) {
-        
+        todo!();
     }
     pub fn transfer(&self, worker_id: i32, ledger_id: i32, src_id: i32, dest_id: i32, amount: i32) {
-        
-    }
-}
-
-impl Clone for Bank {
-    fn clone(&self) -> Self {
-        Bank {
-            num: Arc::new(Mutex::new(*self.num.lock().unwrap())),
-            num_succ: Arc::new(Mutex::new(*self.num_succ.lock().unwrap())),
-            num_fail: Arc::new(Mutex::new(*self.num_fail.lock().unwrap())),
-            accounts: self.accounts.clone(),
-        }
-    }
-}
-impl Clone for Account {
-    fn clone(&self) -> Self {
-        Account {
-            account_id: self.account_id,
-            balance: Arc::new(Mutex::new(*self.balance.lock().unwrap())),
-        }
+        todo!();
     }
 }

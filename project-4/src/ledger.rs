@@ -71,6 +71,9 @@ fn load_ledger(file: String, ledger: &mut VecDeque<Ledger>) -> Result<(), Box<dy
     Ok(())
 }
 
+/**
+    This function will be run as multiple threads, and modify the bank, based on the ledger
+ */
 fn worker(worker_id: i32, ledger: Arc<Mutex<VecDeque<Ledger>>>) {
     let mut size = i32::MAX;
     while size != 0 {
@@ -87,8 +90,8 @@ fn worker(worker_id: i32, ledger: Arc<Mutex<VecDeque<Ledger>>>) {
         let bank = BANK.get().unwrap();
         match item.mode {
             0 => bank.deposit(worker_id, item.ledger_id, item.acc, item.amount),
-            1 => {}
-            2 => {}
+            1 => {bank.withdraw(worker_id, item.ledger_id, item.acc, item.amount);},
+            2 => {bank.transfer(worker_id, item.ledger_id, item.acc, item.other, item.amount);},
             _ => {}
         }
     }

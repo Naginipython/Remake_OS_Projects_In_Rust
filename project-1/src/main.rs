@@ -14,7 +14,7 @@ fn main() {
 
     let init_file = fs::read_to_string(&args[1])
         .expect("Error: File doesn't exist");
-    let mut result: HashMap<String, Vec<usize>> = HashMap::new();
+    let result: HashMap<String, Vec<usize>> = HashMap::new();
 
     let result: HashMap<String, Vec<usize>> = get_data(result, init_file);
     

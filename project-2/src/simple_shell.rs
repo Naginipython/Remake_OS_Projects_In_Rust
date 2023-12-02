@@ -19,7 +19,7 @@ impl SimpleShell {
     }
     pub fn exec_command(&self) {
         let command = self.tokens[0].clone();
-        let output = Command::new(command)
+        Command::new(command)
             .arg(self.tokens[1..].join(" "))
             .spawn()
             .expect("Error: Failed to execute command")

@@ -22,6 +22,8 @@ impl SimpleShell {
         let output = Command::new(command)
             .arg(self.tokens[1..].join(" "))
             .spawn()
-            .expect("Error: Failed to execute command");
+            .expect("Error: Failed to execute command")
+            .wait()
+            .expect("Error: Failed to execute command");;
     }
 }

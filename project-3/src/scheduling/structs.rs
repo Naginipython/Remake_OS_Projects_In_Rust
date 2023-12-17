@@ -1,6 +1,4 @@
-// use std::collections::BinaryHeap;
-
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Clone, Debug)]
 pub struct ArrivalQueue {
     pub arrival: i32,
     pub duration: i32,

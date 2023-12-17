@@ -27,7 +27,7 @@ fn main() {
         "fifo" => show_metrics(schedulers::fifo(workload)),
         "sjf" => show_metrics(schedulers::sjf(workload)),
         "stcf" => show_metrics(schedulers::stcf(workload)),
-        "rr" => {},
+        "rr" => show_metrics(schedulers::rr(workload)),
         _ => {
             println!("Error: Unknown algorithm: {algorithm}");
             println!("usage: [fifo|sjf|stcf|rr] workload_file");

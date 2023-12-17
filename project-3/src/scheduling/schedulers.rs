@@ -1,6 +1,6 @@
-use std::collections::BinaryHeap;
+use std::collections::{BinaryHeap, VecDeque};
 use crate::Process;
-
+#[allow(unused_imports)]
 use super::{util::show_workload, structs::ArrivalQueue};
 // use crate::show_workload;
 
@@ -73,13 +73,66 @@ pub fn stcf(mut workload: Vec<ArrivalQueue>) -> Vec<Process> {
         runtime += 1;
         wl = remove_time(wl, runtime+1);
         
-        // remove time from wl
         if queue.duration != 0 {
             wl.push(queue);
         } else {
             p.completion = Some(runtime);
             complete.push(queue.process.unwrap());
         }
+    }
+
+    complete
+}
+
+pub fn rr(mut workload: Vec<ArrivalQueue>) -> Vec<Process> {
+    // Init processes in workload
+    for w in workload.iter_mut() {
+        let p = Process::to_process(&w);
+        w.process = Some(p);
+    }
+    // Init a deque
+    let mut wl = VecDeque::new();
+    let mut unused = BinaryHeap::new(); // for organization
+
+    for w in workload {
+        if w.arrival == 0 {
+            wl.push_front(w.clone());
+        } else { 
+            unused.push(w.clone()) 
+        }
+    }
+
+    let mut complete: Vec<Process> = Vec::new();
+    let mut runtime = 0;
+
+    while !wl.is_empty() {
+        // Getting front and modifying it
+        let mut queue = wl.pop_front().unwrap(); // issue if runtime < first_arrival
+        let p = queue.process.as_mut().unwrap();
+        if p.first_run == None {
+            p.first_run = Some(runtime);
+        }
+        queue.duration -= 1;
+
+        // Adding to current runtime
+        runtime += 1;
+        for w in wl.iter_mut() {
+            w.arrival -= 1;
+        }
+        
+        // Adds elements if time allows
+        while unused.peek().is_some_and(|w| w.arrival <= runtime) {
+            wl.push_front(unused.pop().unwrap());
+        }
+
+        // Places back if not done, or finalizes
+        if queue.duration != 0 {
+            wl.push_back(queue);
+        } else {
+            p.completion = Some(runtime);
+            complete.push(queue.process.unwrap());
+        }
+
     }
 
     complete
